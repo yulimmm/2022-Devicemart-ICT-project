@@ -1,1 +1,1 @@
-# GUI-study
+# 2022-Devicemart-ICT-CONTEST
