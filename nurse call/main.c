@@ -45,10 +45,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t rx_data;
-char str[30];
-int num=0;
-char number[3];
+#define TxBufferSize (countof(TxBuffer)-1)
+#define RxBufferSize 0xFF
+#define countof(a) (sizeof(a) / sizeof(*(a)))
+	
+uint8_t TxBuffer[] = "AT\r\n";
+uint8_t RxBuffer[RxBufferSize];
 
 /* USER CODE END PV */
 
@@ -98,20 +100,29 @@ int main(void)
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
 	
-	HAL_UART_Receive_IT(&huart3, &rx_data, 1);
-		
+	HAL_UART_Transmit(&huart3, (uint8_t *)TxBuffer, TxBufferSize, 0xFF);
+	
+	
 	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_SET);
 	HAL_Delay(1000);
 	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_RESET);
-
+  
+	//char str[] = "AT\r\n";
+	//HAL_UART_Transmit(&huart3, (uint8_t *)&str, 4, 10);
+	
+	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_SET);
+	HAL_Delay(1000);
+	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_RESET);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint8_t a= 'a';
-	uint8_t b= 1;
   while (1)
   {
+		
+		//void AT();
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -131,13 +142,10 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -146,12 +154,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -169,20 +177,6 @@ static void MX_NVIC_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	
-	if(huart->Instance==USART3){
-		if(rx_data == 't'){
-			sprintf(number, "%d", num++);
-			HAL_UART_Transmit(&huart3,(uint8_t *)number,3,10);
-		
-		}
-			HAL_UART_Receive_IT(&huart3, &rx_data, 1);
-	
-	}
-
-}
 
 /* USER CODE END 4 */
 
