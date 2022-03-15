@@ -48,8 +48,12 @@
 #define TxBufferSize (countof(TxBuffer)-1)
 #define RxBufferSize 0xFF
 #define countof(a) (sizeof(a) / sizeof(*(a)))
-	
+
+char* AT_test = "AT\r\n";
 uint8_t TxBuffer[] = "AT\r\n";
+char a = 'A';
+char t = 'T';
+
 uint8_t RxBuffer[RxBufferSize];
 
 /* USER CODE END PV */
@@ -100,12 +104,18 @@ int main(void)
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
 	
-	HAL_UART_Transmit(&huart3, (uint8_t *)TxBuffer, TxBufferSize, 0xFF);
+	//HAL_UART_Transmit(&huart3, (uint8_t *)TxBuffer, 4, 10);
 	
+	HAL_UART_Transmit(&huart3, (uint8_t *)AT_test, 4, 10);
+
+	if(HAL_UART_Receive(&huart3, (uint8_t *)RxBuffer,RxBufferSize,1000)==HAL_OK)
+	{
+		HAL_UART_Transmit(&huart3, (uint8_t *)RxBuffer, RxBufferSize,1000);
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_SET);
+		HAL_Delay(1000);
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_RESET);
+	}
 	
-	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_SET);
-	HAL_Delay(1000);
-	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_RESET);
   
 	//char str[] = "AT\r\n";
 	//HAL_UART_Transmit(&huart3, (uint8_t *)&str, 4, 10);
